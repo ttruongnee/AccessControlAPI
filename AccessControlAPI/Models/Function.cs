@@ -2,7 +2,7 @@
 {
     public class Function
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public int Sort_order { get; set; }
         public int? Parent_id { get; set; }
