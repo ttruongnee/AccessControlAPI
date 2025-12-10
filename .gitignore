@@ -5,6 +5,7 @@
 
 appsettings.Production.json
 appsettings.Development.json
+GetEncryptionController.cs
 
 # User-specific files
 *.rsuser

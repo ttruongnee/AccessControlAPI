@@ -58,12 +58,12 @@ namespace AccessControlAPI.Repositories
             }
         }
 
-        public bool Update(Role role)
+        public bool Update(int id, Role role)
         {
             using (var conn = _oracleDb.GetConnection())
             {
-                string sql = "update roles set name = :name";
-                return conn.Execute(sql, new { name = role.Name }) > 0;
+                string sql = "update roles set name = :name where id = :id";
+                return conn.Execute(sql, new { name = role.Name, id }) > 0;
             }
         }
     }

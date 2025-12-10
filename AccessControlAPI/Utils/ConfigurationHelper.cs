@@ -1,4 +1,4 @@
-﻿namespace AccessControlAPI.Ultils
+﻿namespace AccessControlAPI.Utils
 {
     public class ConfigurationHelper
     {
@@ -25,9 +25,10 @@
             return _encryptHelper.Decrypt(encrypted);
         }
 
-        //public string GetConnectionString()
-        //{
-        //    return _config.GetConnectionString("Default");
-        //}
+        //lấy chuỗi kết nối chưa mã hoá (không dùng trong thực tế)
+        public string GetConnectionString()
+        {
+            return _config.GetConnectionString("Default");
+        }
     }
 }

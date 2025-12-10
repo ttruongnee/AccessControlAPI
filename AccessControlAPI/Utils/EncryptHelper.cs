@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace AccessControlAPI.Ultils
+namespace AccessControlAPI.Utils
 {
     public class EncryptHelper
     {

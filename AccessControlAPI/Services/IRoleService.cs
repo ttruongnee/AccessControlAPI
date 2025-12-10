@@ -6,8 +6,8 @@ namespace AccessControlAPI.Services
     {
         RoleDTO GetById(int id);
         List<RoleDTO> GetAll();
-        bool Create(RoleDTO role, out string message);
-        bool Update(RoleDTO role, out string message);
+        bool Create(CreateUpdateRoleDTO role, out string message);
+        bool Update(int id, CreateUpdateRoleDTO role, out string message);
         bool Delete(int id, out string message);
     }
 }

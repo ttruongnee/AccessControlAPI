@@ -2,7 +2,7 @@
 using NLog;
 using System;
 
-namespace AccessControlAPI.Ultils
+namespace AccessControlAPI.Utils
 {
     public class LogHelper
     {

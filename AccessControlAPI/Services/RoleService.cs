@@ -1,7 +1,7 @@
 ﻿using AccessControlAPI.DTOs;
 using AccessControlAPI.Models;
 using AccessControlAPI.Repositories;
-using AccessControlAPI.Ultils;
+using AccessControlAPI.Utils;
 using Oracle.ManagedDataAccess.Client;
 
 namespace AccessControlAPI.Services
@@ -15,7 +15,8 @@ namespace AccessControlAPI.Services
             _roleRepository = roleRepository;
             _logHelper = logHelper;
         }
-        public bool Create(RoleDTO role, out string message)
+
+        public bool Create(CreateUpdateRoleDTO role, out string message)
         {
             try
             {
@@ -64,8 +65,16 @@ namespace AccessControlAPI.Services
             }
         }
 
+
         public bool Delete(int id, out string message)
         {
+            var existing = _roleRepository.GetById(id);
+            if (existing == null)
+            {
+                message = $"Vai trò với ID = {id} không tồn tại.";
+                return false;
+            }
+
             try
             {
                 var result = _roleRepository.Delete(id);
@@ -108,6 +117,10 @@ namespace AccessControlAPI.Services
         public List<RoleDTO> GetAll()
         {
             var roles = _roleRepository.GetAll();
+            if (roles.Count == 0)
+            {
+                return null;
+            }
             return roles.Select(r => new RoleDTO
             {
                 Id = r.Id,
@@ -118,6 +131,10 @@ namespace AccessControlAPI.Services
         public RoleDTO GetById(int id)
         {
             var role = _roleRepository.GetById(id);
+            if (role == null)
+            {
+                return null;
+            }
             return new RoleDTO
             {
                 Id = role.Id,
@@ -125,21 +142,28 @@ namespace AccessControlAPI.Services
             };
         }
 
-        public bool Update(RoleDTO role, out string message)
+        public bool Update(int id, CreateUpdateRoleDTO role, out string message)
         {
+            var existing = _roleRepository.GetById(id);
+            if (existing == null)
+            {
+                message = $"Vai trò với ID = {id} không tồn tại.";
+                return false;
+            }
+
             try
             {
-                var result = _roleRepository.Update( new Role { Name = role.Name });
+                var result = _roleRepository.Update(id, new Role { Name = role.Name });
                 if (result)
                 {
                     message = $"Cập nhật thông tin vai trò thành công.";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, role.Id, "Cập nhật thông tin vai trò", true, message);
+                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Cập nhật thông tin vai trò", true, message);
                     return true;
                 }
                 else
                 {
                     message = "Cập nhật thông tin vai trò thất bại";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, role.Id, "Cập nhật thông tin vai trò", false, message);
+                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Cập nhật thông tin vai trò", false, message);
                     return false;
                 }
             }
@@ -147,7 +171,7 @@ namespace AccessControlAPI.Services
             {
                 switch (ex.Number)
                 {
-                    case 1400:
+                    case 1407:
                         message = "Thiếu dữ liệu yêu cầu (NOT NULL).";
                         break;
 

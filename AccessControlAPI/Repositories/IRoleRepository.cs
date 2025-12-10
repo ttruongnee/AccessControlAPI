@@ -8,7 +8,7 @@ namespace AccessControlAPI.Repositories
         List<Role> GetAll();
         int GetNextRoleId();
         bool Create(Role role, out int newRoleId);
-        bool Update(Role role);
+        bool Update(int id, Role role);
         bool Delete(int id);
     }
 }

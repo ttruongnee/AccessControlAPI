@@ -1,4 +1,4 @@
-﻿using AccessControlAPI.Ultils;
+﻿using AccessControlAPI.Utils;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
 
