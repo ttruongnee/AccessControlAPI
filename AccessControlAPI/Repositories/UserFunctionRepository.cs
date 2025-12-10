@@ -11,26 +11,36 @@ namespace AccessControlAPI.Repositories
         {
             _oracleDb = oracleDb;
         }
-        public bool AddFunctionsForUser(int userId, List<string> functionIds)
-        {
-            using (var conn = _oracleDb.GetConnection())
-            {
-                try
-                {
-                    string sql = "insert into users_functions (user_id, function_id) values (:userId, :functionId)";
-                    foreach (var functionId in functionIds)
-                    {
-                        conn.Execute(sql, new { userId, functionId });
-                    }
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    return false;
-                }
-            }
-        }
-        //xoá toàn bộ quyền của user (trong bảng user_functions)
+
+        ////gán quyền cho user
+        //public bool AddFunctionsForUser(int userId, List<string> functionIds)
+        //{
+        //    using (var conn = _oracleDb.GetConnection())
+        //    {
+        //        conn.Open();
+        //        using(var transaction = conn.BeginTransaction())
+        //        {   
+        //            try
+        //            {
+        //                string sql = "insert into users_functions (user_id, function_id) values (:userId, :functionId)";
+        //                foreach (var functionId in functionIds)
+        //                {
+        //                    conn.Execute(sql, new { userId, functionId }, transaction: transaction);
+        //                }
+        //                transaction.Commit();
+        //                return true;
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                transaction.Rollback();
+        //                throw;
+        //                //return false;
+        //            }
+        //        }
+        //    }
+        //}
+
+        //xoá toàn bộ quyền của user
         public bool DeleteFunctionsFromUser(int userId)
         {
             using (var conn = _oracleDb.GetConnection())
@@ -40,6 +50,46 @@ namespace AccessControlAPI.Repositories
             }
         }
 
+        //cập nhật quyền của user
+        public bool UpdateFunctionsForUser(int userId, List<string> functionIds)
+        {
+            using (var conn = _oracleDb.GetConnection())
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // xóa quyền cũ
+                        string deleteSql = "DELETE FROM users_functions WHERE user_id = :userId";
+                        conn.Execute(deleteSql, new { userId }, transaction: transaction);
+
+                        // chèn quyền mới (nếu có)
+                        if (functionIds != null && functionIds.Count > 0)
+                        {
+                            string insertSql = "INSERT INTO users_functions (user_id, function_id) VALUES (:userId, :functionId)";
+
+                            foreach (var functionId in functionIds)
+                            {
+                                conn.Execute(insertSql, new { userId, functionId }, transaction: transaction);
+                            }
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                        //return false;
+                    }
+                }
+            }
+        }
+
+
+        //lấy danh sách quyền của user
         public List<Function> GetFunctionsByUserId(int userId)
         {
             using (var conn = _oracleDb.GetConnection())
