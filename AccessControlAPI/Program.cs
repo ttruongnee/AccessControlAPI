@@ -30,6 +30,7 @@ builder.Services.AddScoped<IUserFunctionRepository, UserFunctionRepository>();
 //đăng ký service
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFunctionService, FunctionService>();    
 
 
 var app = builder.Build();

@@ -6,5 +6,7 @@ namespace AccessControlAPI.Services
     {
         List<FunctionDTO> GetAll();
         FunctionDTO GetById(string id);
+        public List<FunctionDTO> GetChildren(string parentId);
+        List<FunctionDTO> GetParents();
     }
 }
