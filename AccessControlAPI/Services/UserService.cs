@@ -3,34 +3,34 @@ using AccessControlAPI.Models;
 using AccessControlAPI.Repositories;
 using AccessControlAPI.Utils;
 using Oracle.ManagedDataAccess.Client;
+using System.Data;
 
 namespace AccessControlAPI.Services
 {
-    public class RoleService : IRoleService
+    public class UserService : IUserService
     {
-        private readonly IRoleRepository _roleRepository;
+        private readonly IUserRepository _userRepository;
         private readonly LogHelper _logHelper;
-        public RoleService(IRoleRepository roleRepository, LogHelper logHelper)
+        public UserService(IUserRepository userRepository, LogHelper logHelper)
         {
-            _roleRepository = roleRepository;
+            _userRepository = userRepository;
             _logHelper = logHelper;
         }
-
-        public bool Create(CreateUpdateRoleDTO role, out string message)
+        public bool Create(CreateUpdateUserDTO user, out string message)
         {
             try
             {
-                var result = _roleRepository.Create( new Role { Name = role.Name }, out int newRoleId);
+                var result = _userRepository.Create(new User { Username = user.Username, Password = user.Password }, out int newUserId);
                 if (result)
                 {
-                    message = $"Tạo vai trò thành công.";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, newRoleId, "Tạo vai trò", true, message);
+                    message = $"Tạo người dùng thành công với ID: {newUserId}";
+                    _logHelper.WriteLog(NLog.LogLevel.Info, null, newUserId, "Tạo người dùng", true, message);
                     return true;
                 }
                 else
                 {
-                    message = "Tạo vai trò thất bại";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, null, "Tạo vai trò", false, message);
+                    message = "Tạo người dùng thất bại";
+                    _logHelper.WriteLog(NLog.LogLevel.Info, null, null, "Tạo người dùng", false, message);
                     return false;
                 }
             }
@@ -39,7 +39,7 @@ namespace AccessControlAPI.Services
                 switch (ex.Number)
                 {
                     case 1:
-                        message = "Vai trò đã tồn tại.";
+                        message = "Người dùng đã tồn tại.";
                         break;
 
                     case 1400:
@@ -54,40 +54,39 @@ namespace AccessControlAPI.Services
                         message = $"Lỗi CSDL (Oracle {ex.Number}): {ex.Message}.";
                         break;
                 }
-                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Tạo vai trò", false, message);
+                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Tạo người dùng", false, message);
                 return false;
             }
             catch (Exception ex)
             {
                 message = $"Lỗi hệ thống: {ex.Message}";
-                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Tạo vai trò", false, message);
+                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Tạo người dùng", false, message);
                 return false;
             }
         }
 
-
         public bool Delete(int id, out string message)
         {
-            var existing = _roleRepository.GetById(id);
+            var existing = _userRepository.GetById(id);
             if (existing == null)
             {
-                message = $"Vai trò với ID = {id} không tồn tại.";
+                message = $"Người dùng với ID = {id} không tồn tại.";
                 return false;
             }
 
             try
             {
-                var result = _roleRepository.Delete(id);
+                var result = _userRepository.Delete(id);
                 if (result)
                 {
-                    message = $"Xoá vai trò thành công.";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Xoá vai trò", true, message);
+                    message = $"Xoá người dùng thành công.";
+                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Xoá người dùng", true, message);
                     return true;
                 }
                 else
                 {
-                    message = "Xoá vai trò thất bại";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Xoá vai trò", false, message);
+                    message = "Xoá người dùng thất bại";
+                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Xoá người dùng", false, message);
                     return false;
                 }
             }
@@ -103,63 +102,77 @@ namespace AccessControlAPI.Services
                         message = $"Lỗi CSDL (Oracle {ex.Number}): {ex.Message}.";
                         break;
                 }
-                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Xoá vai trò", false, message);
+                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Xoá người dùng", false, message);
                 return false;
             }
             catch (Exception ex)
             {
                 message = $"Lỗi hệ thống: {ex.Message}";
-                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Xoá vai trò", false, message);
+                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Xoá người dùng", false, message);
                 return false;
             }
         }
 
-        public List<RoleDTO> GetAll()
+        public List<UserDTO> GetAll()
         {
-            var roles = _roleRepository.GetAll();
-            return roles.Select(r => new RoleDTO
+            var users = _userRepository.GetAll();
+            return users.Select(u => new UserDTO
             {
-                Id = r.Id,
-                Name = r.Name
-            }).ToList();
+                Id = u.Id,
+                Username = u.Username
+            }).ToList();    
         }
 
-        public RoleDTO GetById(int id)
+        public UserDTO GetById(int id)
         {
-            var role = _roleRepository.GetById(id);
-            if (role == null)
+            var user = _userRepository.GetById(id);
+            if (user == null)
             {
                 return null;
             }
-            return new RoleDTO
+            return new UserDTO
             {
-                Id = role.Id,
-                Name = role.Name
+                Id = user.Id,
+                Username = user.Username
             };
         }
 
-        public bool Update(int id, CreateUpdateRoleDTO role, out string message)
+        public UserDTO GetByUsername(string username)
         {
-            var existing = _roleRepository.GetById(id);
+            var user = _userRepository.GetByUsername(username);
+            if (user == null)
+            {
+                return null;
+            }
+            return new UserDTO
+            {
+                Id = user.Id,
+                Username = user.Username
+            };
+        }
+
+        public bool Update(int id, CreateUpdateUserDTO user, out string message)
+        {
+            var existing = _userRepository.GetById(id);
             if (existing == null)
             {
-                message = $"Vai trò với ID = {id} không tồn tại.";
+                message = $"Người dùng với ID = {id} không tồn tại.";
                 return false;
             }
 
             try
             {
-                var result = _roleRepository.Update(id, new Role { Name = role.Name });
+                var result = _userRepository.Update(id, new User { Username = user.Username, Password = user.Password });
                 if (result)
                 {
-                    message = $"Cập nhật thông tin vai trò thành công.";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Cập nhật thông tin vai trò", true, message);
+                    message = $"Cập nhật thông tin người dùng thành công.";
+                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Cập nhật thông tin người dùng", true, message);
                     return true;
                 }
                 else
                 {
                     message = "Cập nhật thông tin vai trò thất bại";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Cập nhật thông tin vai trò", false, message);
+                    _logHelper.WriteLog(NLog.LogLevel.Info, null, id, "Cập nhật thông tin người dùng", false, message);
                     return false;
                 }
             }
@@ -179,13 +192,13 @@ namespace AccessControlAPI.Services
                         message = $"Lỗi CSDL (Oracle {ex.Number}): {ex.Message}.";
                         break;
                 }
-                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Cập nhật thông tin vai trò", false, message);
+                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Cập nhật thông tin người dùng", false, message);
                 return false;
             }
             catch (Exception ex)
             {
                 message = $"Lỗi hệ thống: {ex.Message}";
-                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Cập nhật thông tin vai trò", false, message);
+                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Cập nhật thông tin người dùng", false, message);
                 return false;
             }
         }

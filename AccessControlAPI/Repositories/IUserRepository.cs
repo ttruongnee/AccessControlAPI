@@ -9,7 +9,7 @@ namespace AccessControlAPI.Repositories
         User GetByUsername(string username);
         int GetNextUserId();
         bool Create(User user, out int newUserId);
-        bool Update(User user);
+        bool Update(int id, User user);
         bool Delete(int id);
     }
 }

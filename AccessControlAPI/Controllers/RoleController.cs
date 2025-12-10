@@ -18,9 +18,9 @@ namespace AccessControlAPI.Controllers
         public IActionResult GetAll()
         {
             var roles = _roleService.GetAll();
-            if (roles == null)
+            if (roles.Count == 0)
             {
-                return Ok(new { message = "Chưa có vai trò nào!"});
+                return NotFound(new { message = "Chưa có vai trò nào!"});
             }
             return Ok(roles);
         }

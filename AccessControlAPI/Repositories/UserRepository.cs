@@ -66,12 +66,12 @@ namespace AccessControlAPI.Repositories
             }
         }
 
-        public bool Update(User user)
+        public bool Update(int id, User user)
         {
             using (var conn = _oracleDb.GetConnection())
             {
                 string sql = "update users set username = :username, password = :password where id = :id";
-                return conn.Execute(sql, new { username = user.Username, password = user.Password, id = user.Id }) > 0;
+                return conn.Execute(sql, new { username = user.Username, password = user.Password, id }) > 0;
             }
         }
     }

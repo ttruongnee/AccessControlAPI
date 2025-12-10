@@ -1,15 +1,15 @@
-﻿using AccessControlAPI.Models;
-using System.Runtime.CompilerServices;
+﻿using AccessControlAPI.DTOs;
+using AccessControlAPI.Models;
 
 namespace AccessControlAPI.Services
 {
     public interface IUserService
     {
-        List<User> GetAll();
-        User GetById(int id);
-        User GetByUsername(string username);
-        bool Create(User user, out string message);
-        bool Update(User user, out string message);
+        List<UserDTO> GetAll();
+        UserDTO GetById(int id);
+        UserDTO GetByUsername(string username);
+        bool Create(CreateUpdateUserDTO user, out string message);
+        bool Update(int id, CreateUpdateUserDTO user, out string message);
         bool Delete(int id, out string message);
     }
 }
