@@ -11,28 +11,8 @@ namespace AccessControlAPI.Repositories
         {
             _oracleDb = oracleDb;
         }
-        public bool AddRolesForUser(int userId, List<int> roleIds)
-        {
-            using (var conn = _oracleDb.GetConnection())
-            {
-                try
-                {
-                    string sql = "insert into users_roles (user_id, role_id) values (:userId, :roleId)";
-                    foreach (var roleId in roleIds)
-                    {
-                        conn.Execute(sql, new { userId, roleId });
-                    }
-                    return true;
-                }
-                catch (Exception e)
-                {
 
-                    return false;
-                }
-            }
-        }
-
-        public bool DeleteRoleFromUser(int userId)
+        public bool DeleteRolesFromUser(int userId)
         {
             using (var conn = _oracleDb.GetConnection())
             {
@@ -52,6 +32,43 @@ namespace AccessControlAPI.Repositories
                                 WHERE ur.user_id = :userId";
 
                 return conn.Query<Role>(sql, new { userId }).ToList();
+            }
+        }
+
+        public bool UpdateRolesForUser(int userId, List<int> roleIds)
+        {
+            using (var conn = _oracleDb.GetConnection())
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // xóa vai trò cũ
+                        string deleteSql = "DELETE FROM users_roles WHERE user_id = :userId";
+                        conn.Execute(deleteSql, new { userId }, transaction: transaction);
+
+                        // chèn vai trò mới (nếu có)
+                        if (roleIds != null && roleIds.Count > 0)
+                        {
+                            string insertSql = "INSERT INTO users_roles (user_id, role_id) VALUES (:userId, :roleId)";
+
+                            foreach (var roleId in roleIds)
+                            {
+                                conn.Execute(insertSql, new { userId, roleId }, transaction: transaction);
+                            }
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                        //return false;
+                    }
+                }
             }
         }
     }

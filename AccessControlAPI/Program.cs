@@ -34,6 +34,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFunctionService, FunctionService>(); 
 builder.Services.AddScoped<IUserFunctionService, UserFunctionService>();
 builder.Services.AddScoped<IRoleFunctionService, RoleFunctionService>();
+builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 
 
 var app = builder.Build();

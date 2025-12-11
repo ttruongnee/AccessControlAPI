@@ -61,11 +61,11 @@ namespace AccessControlAPI.Repositories
                 {
                     try
                     {
-                        // xóa quyền cũ
+                        // xóa chức năng cũ
                         string deleteSql = "DELETE FROM users_functions WHERE user_id = :userId";
                         conn.Execute(deleteSql, new { userId }, transaction: transaction);
 
-                        // chèn quyền mới (nếu có)
+                        // chèn chức năng mới (nếu có)
                         if (functionIds != null && functionIds.Count > 0)
                         {
                             string insertSql = "INSERT INTO users_functions (user_id, function_id) VALUES (:userId, :functionId)";
