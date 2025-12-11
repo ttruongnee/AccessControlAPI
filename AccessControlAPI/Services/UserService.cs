@@ -20,7 +20,8 @@ namespace AccessControlAPI.Services
         {
             try
             {
-                var result = _userRepository.Create(new User { Username = user.Username, Password = user.Password }, out int newUserId);
+                var passwordHash = PasswordHelper.HashPassword(user.Password);
+                var result = _userRepository.Create(new User { Username = user.Username, Password = passwordHash }, out int newUserId);
                 if (result)
                 {
                     message = $"Tạo người dùng thành công với ID: {newUserId}";
