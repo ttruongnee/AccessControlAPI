@@ -41,6 +41,7 @@ namespace AccessControlAPI.Repositories
         //}
 
         //xoá toàn bộ quyền của user
+
         public bool DeleteFunctionsFromUser(int userId)
         {
             using (var conn = _oracleDb.GetConnection())
@@ -71,7 +72,7 @@ namespace AccessControlAPI.Repositories
 
                             foreach (var functionId in functionIds)
                             {
-                                conn.Execute(insertSql, new { userId, functionId }, transaction: transaction);
+                                conn.Execute(insertSql, new { userId, functionId = functionId.Trim().ToUpper() }, transaction: transaction);
                             }
                         }
 

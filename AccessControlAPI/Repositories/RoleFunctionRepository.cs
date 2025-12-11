@@ -12,25 +12,6 @@ namespace AccessControlAPI.Repositories
         {
             _oracleDb = oracleDb;
         }
-        public bool AddFunctionsForRole(int roleId, List<string> functionIds)
-        {
-            using (var conn = _oracleDb.GetConnection())
-            {
-                try
-                {
-                    string sql = "insert into roles_functions (role_id, function_id) values (:roleId, :functionId)";
-                    foreach (var functionId in functionIds)
-                    {
-                        conn.Execute(sql, new { roleId, functionId });
-                    }
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    return false;
-                }
-            }
-        }
 
         public bool DeleteFunctionsFromRole(int roleId)
         {
@@ -41,7 +22,7 @@ namespace AccessControlAPI.Repositories
             }
         }
 
-        public List<Function> GetFunctionIdsByRoleId(int roleId)
+        public List<Function> GetFunctionsByRoleId(int roleId)
         {
             using (var conn = _oracleDb.GetConnection())
             {
@@ -52,6 +33,43 @@ namespace AccessControlAPI.Repositories
                                 WHERE rf.role_id = :roleId";
 
                 return conn.Query<Function>(sql, new { roleId }).ToList();
+            }
+        }
+
+        public bool UpdateFunctionsForRole(int roleId, List<string> functionIds)
+        {
+            using (var conn = _oracleDb.GetConnection())
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // xóa quyền cũ
+                        string deleteSql = "DELETE FROM roles_functions WHERE role_id = :roleId";
+                        conn.Execute(deleteSql, new { roleId }, transaction: transaction);
+
+                        // chèn quyền mới (nếu có)
+                        if (functionIds != null && functionIds.Count > 0)
+                        {
+                            string insertSql = "INSERT INTO roles_functions (role_id, function_id) VALUES (:roleId, :functionId)";
+
+                            foreach (var functionId in functionIds)
+                            {
+                                conn.Execute(insertSql, new { roleId, functionId = functionId.Trim().ToUpper() }, transaction: transaction);
+                            }
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                        //return false;
+                    }
+                }
             }
         }
     }

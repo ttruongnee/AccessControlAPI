@@ -26,12 +26,14 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IFunctionRepository, FunctionReponsitory>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IUserFunctionRepository, UserFunctionRepository>();
+builder.Services.AddScoped<IRoleFunctionRepository, RoleFunctionRepository>();
 
 //đăng ký service
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFunctionService, FunctionService>(); 
 builder.Services.AddScoped<IUserFunctionService, UserFunctionService>();
+builder.Services.AddScoped<IRoleFunctionService, RoleFunctionService>();
 
 
 var app = builder.Build();

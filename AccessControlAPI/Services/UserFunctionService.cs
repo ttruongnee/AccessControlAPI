@@ -1,6 +1,5 @@
 ﻿using AccessControlAPI.Database;
 using AccessControlAPI.DTOs;
-using AccessControlAPI.Models;
 using AccessControlAPI.Repositories;
 using AccessControlAPI.Utils;
 using Oracle.ManagedDataAccess.Client;
@@ -9,21 +8,17 @@ namespace AccessControlAPI.Services
 {
     public class UserFunctionService : IUserFunctionService
     {
-        private readonly IOracleDb _oracleDb;
         private readonly LogHelper _logHelper;
         private readonly IUserRepository _userRepository;
         private readonly IUserFunctionRepository _userFunctionRepository;
-        private readonly IFunctionService _functionService;
-        public UserFunctionService(IOracleDb oracleDb, LogHelper logHelper,  IUserFunctionRepository userFunctionRepository, IFunctionService functionService, IUserRepository userRepository)
+        public UserFunctionService(LogHelper logHelper, IUserFunctionRepository userFunctionRepository, IUserRepository userRepository)
         {
-            _oracleDb = oracleDb;
             _logHelper = logHelper;
             _userFunctionRepository = userFunctionRepository;
-            _functionService = functionService;
             _userRepository = userRepository;
         }
 
-
+        //Tạo chức năng cho người dùng mới - không sử dụng nữa, thay bằng việc gán chức năng trong UpdateFunctionsForUser
         //public bool AddFunctionsForUser(int userId, List<string> functionIds, out string message)
         //{
         //    try
@@ -38,7 +33,7 @@ namespace AccessControlAPI.Services
         //        if (result)
         //        {
         //            message = $"Gán chức năng cho người dùng {userId} thành công";
-        //            _logHelper.WriteLog(NLog.LogLevel.Info, null, userId, "Gán chức năng cho người dùng", true, message);
+        //            _logHelper.WriteLog(NLog.LogLevel.Info, userId, null, "Gán chức năng cho người dùng", true, message);
         //            return true;
         //        }
         //        else
@@ -88,7 +83,7 @@ namespace AccessControlAPI.Services
             var existingUser = _userRepository.GetById(userId);
             if (existingUser == null)
             {
-                message = $"Người dùng với ID = {userId} không tồn tại.";
+                message = $"Người dùng với ID = {userId} không tồn tại";
                 return false;
             }
 
@@ -105,13 +100,13 @@ namespace AccessControlAPI.Services
                 if (result)
                 {
                     message = $"Xoá toàn bộ chức năng của tài khoản {userId} thành công";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, userId, "Xoá chức năng người dùng", true, message);
+                    _logHelper.WriteLog(NLog.LogLevel.Info, userId, null, "Xoá chức năng người dùng", true, message);
                     return true;
                 }
                 else
                 {
                     message = $"Xoá toàn bộ chức năng của tài khoản {userId} thất bại";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, userId, "Xoá chức năng người dùng", false, message);
+                    _logHelper.WriteLog(NLog.LogLevel.Info, userId, null, "Xoá chức năng người dùng", false, message);
                     return false;
                 }
             }
@@ -168,12 +163,12 @@ namespace AccessControlAPI.Services
                 return false;
             }
 
-            var existing = _userFunctionRepository.GetFunctionsByUserId(userId);
-            if (existing.Count == 0)
-            {
-                message = $"Người dùng {userId} hiện tại không có chức năng nào";
-                return false;
-            }
+            //var existing = _userFunctionRepository.GetFunctionsByUserId(userId);
+            //if (existing.Count == 0)
+            //{
+            //    message = $"Người dùng {userId} hiện tại không có chức năng nào";
+            //    return false;
+            //}
         
             try
             {
@@ -181,13 +176,13 @@ namespace AccessControlAPI.Services
                 if (result)
                 {
                     message = $"Cập nhật chức năng cho người dùng thành công.";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, userId, "Cập nhật chức năng cho người dùng", true, message);
+                    _logHelper.WriteLog(NLog.LogLevel.Info, userId, null, "Cập nhật chức năng cho người dùng", true, message);
                     return true;
                 }
                 else
                 {
                     message = "Cập nhật chức năng cho người dùng thất bại";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, userId, "Cập nhật chức năng cho người dùng", false, message);
+                    _logHelper.WriteLog(NLog.LogLevel.Info, userId, null, "Cập nhật chức năng cho người dùng", false, message);
                     return false;
                 }
             }
@@ -201,6 +196,10 @@ namespace AccessControlAPI.Services
 
                     case 904:
                         message = "Tên cột không hợp lệ.";
+                        break;
+
+                    case 2291:
+                        message = "Không tìm thấy dữ liệu tham chiếu từ bảng cha.";
                         break;
 
                     default:
