@@ -18,6 +18,12 @@ namespace AccessControlAPI.Services
         }
         public bool Create(CreateUpdateUserDTO user, out string message)
         {
+            var existing = _userRepository.GetByUsername(user.Username);
+            if (existing != null)
+            {
+                message = $"Người dùng có username = {user.Username} đã tồn tại.";
+                return false;
+            }
             try
             {
                 var passwordHash = PasswordHelper.HashPassword(user.Password);
