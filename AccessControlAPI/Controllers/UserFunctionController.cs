@@ -1,5 +1,5 @@
 ﻿using AccessControlAPI.DTOs;
-using AccessControlAPI.Services;
+using AccessControlAPI.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccessControlAPI.Controllers

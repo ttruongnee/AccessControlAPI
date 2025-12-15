@@ -1,5 +1,6 @@
 ﻿using AccessControlAPI.DTOs;
-using AccessControlAPI.Repositories;
+using AccessControlAPI.Repositories.Interface;
+using AccessControlAPI.Services.Interface;
 
 namespace AccessControlAPI.Services
 {

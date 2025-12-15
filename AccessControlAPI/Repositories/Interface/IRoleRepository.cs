@@ -1,6 +1,6 @@
 ﻿using AccessControlAPI.Models;
 
-namespace AccessControlAPI.Repositories
+namespace AccessControlAPI.Repositories.Interface
 {
     public interface IRoleRepository
     {

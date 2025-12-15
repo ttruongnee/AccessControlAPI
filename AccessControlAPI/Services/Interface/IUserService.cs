@@ -1,7 +1,7 @@
 ﻿using AccessControlAPI.DTOs;
 using AccessControlAPI.Models;
 
-namespace AccessControlAPI.Services
+namespace AccessControlAPI.Services.Interface
 {
     public interface IUserService
     {

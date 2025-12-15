@@ -1,6 +1,7 @@
 ﻿using AccessControlAPI.DTOs;
 using AccessControlAPI.Models;
-using AccessControlAPI.Repositories;
+using AccessControlAPI.Repositories.Interface;
+using AccessControlAPI.Services.Interface;
 using AccessControlAPI.Utils;
 using Oracle.ManagedDataAccess.Client;
 

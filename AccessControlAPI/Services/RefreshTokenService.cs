@@ -1,4 +1,5 @@
-﻿using AccessControlAPI.Repositories;
+﻿using AccessControlAPI.Repositories.Interface;
+using AccessControlAPI.Services.Interface;
 using AccessControlAPI.Utils;
 
 namespace AccessControlAPI.Services

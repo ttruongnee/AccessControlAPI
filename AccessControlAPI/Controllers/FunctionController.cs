@@ -1,4 +1,4 @@
-﻿using AccessControlAPI.Services;
+﻿using AccessControlAPI.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

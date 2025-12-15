@@ -1,6 +1,8 @@
 ﻿using AccessControlAPI.Database;
 using AccessControlAPI.Repositories;
+using AccessControlAPI.Repositories.Interface;
 using AccessControlAPI.Services;
+using AccessControlAPI.Services.Interface;
 using AccessControlAPI.Utils;
 
 var builder = WebApplication.CreateBuilder(args);

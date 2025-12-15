@@ -1,5 +1,6 @@
 ﻿using AccessControlAPI.Database;
 using AccessControlAPI.Models;
+using AccessControlAPI.Repositories.Interface;
 using Dapper;
 
 namespace AccessControlAPI.Repositories
