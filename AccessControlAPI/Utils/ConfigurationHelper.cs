@@ -17,7 +17,6 @@
             return _config["EncryptedConnectionString"];
         }
 
-
         //lấy chuỗi kết nối đã giải mã
         public string GetDecryptedConnectionString()
         {
@@ -29,6 +28,21 @@
         public string GetConnectionString()
         {
             return _config.GetConnectionString("Default");
+        }
+
+        public string GetJwtKey()
+        {
+            return _config["Jwt:Key"];
+        }
+
+        public string GetAccessTokenMinutes()
+        {
+            return _config["Jwt:AccessTokenMinutes"];
+        }
+
+        public string GetRefreshTokenDays()
+        {
+            return _config["Jwt:RefreshTokenDays"];
         }
     }
 }

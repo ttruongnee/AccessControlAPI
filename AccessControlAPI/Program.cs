@@ -15,6 +15,7 @@ builder.Services.AddSwaggerGen();
 
 //đăng ký DB & Utils
 builder.Services.AddScoped<IOracleDb, OracleDb>();
+builder.Services.AddScoped<JwtTokenHelper>();
 builder.Services.AddSingleton<EncryptHelper>();
 builder.Services.AddSingleton<ConfigurationHelper>();
 builder.Services.AddSingleton<LogHelper>();
@@ -27,6 +28,7 @@ builder.Services.AddScoped<IFunctionRepository, FunctionReponsitory>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IUserFunctionRepository, UserFunctionRepository>();
 builder.Services.AddScoped<IRoleFunctionRepository, RoleFunctionRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 //đăng ký service
 builder.Services.AddScoped<IRoleService, RoleService>();
@@ -35,6 +37,7 @@ builder.Services.AddScoped<IFunctionService, FunctionService>();
 builder.Services.AddScoped<IUserFunctionService, UserFunctionService>();
 builder.Services.AddScoped<IRoleFunctionService, RoleFunctionService>();
 builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
 
 var app = builder.Build();

@@ -10,11 +10,19 @@ namespace AccessControlAPI.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly JwtTokenHelper _jwtTokenHelper;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly LogHelper _logHelper;
-        public UserService(IUserRepository userRepository, LogHelper logHelper)
+        private readonly ConfigurationHelper _configHelper;
+
+
+        public UserService(IUserRepository userRepository, JwtTokenHelper jwtTokenHelper,  LogHelper logHelper, ConfigurationHelper configHelper, IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
+            _jwtTokenHelper = jwtTokenHelper;
             _logHelper = logHelper;
+            _configHelper = configHelper;
+            _refreshTokenRepository = refreshTokenRepository;
         }
         public bool Create(UserDTO user, out string message)
         {
@@ -212,8 +220,10 @@ namespace AccessControlAPI.Services
         }
 
 
-        public bool Login(UserDTO user, out string message)
+        public bool Login(UserDTO user, out string accessToken, out string refreshToken, out string message)
         {
+            accessToken = null;
+            refreshToken = null;
             try
             {
                 var existing = _userRepository.GetByUsername(user.Username);
@@ -228,6 +238,15 @@ namespace AccessControlAPI.Services
                 {
                     message = "Đăng nhập thành công.";
                     _logHelper.WriteLog(NLog.LogLevel.Info, null, existing.Id, "Đăng nhập", true, message);
+
+                    accessToken = _jwtTokenHelper.GenerateAccessToken(existing);
+                    refreshToken = _jwtTokenHelper.GenerateRefreshToken();
+
+                    var expires = DateTime.UtcNow.AddDays(
+                        int.Parse(_configHelper.GetRefreshTokenDays())
+                    );
+
+                    _refreshTokenRepository.Save(existing.Id, refreshToken, expires);
                     return true;
                 }
                 else

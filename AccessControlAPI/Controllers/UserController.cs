@@ -94,41 +94,5 @@ namespace AccessControlAPI.Controllers
                 return BadRequest(new { message });
             }
         }
-
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] UserDTO user)
-        {
-            if (user == null)
-            {
-                return BadRequest(new { message = "Dữ liệu người dùng không hợp lệ" });
-            }
-
-            if (_userService.Login(user, out string message))
-            {
-                return Ok(new { message });
-            }
-            else
-            {
-                return BadRequest(new { message });
-            }
-        }
-
-        [HttpPost("register")]
-        public IActionResult Register([FromBody] UserDTO user)
-        {
-            if (user == null)
-            {
-                return BadRequest(new { message = "Dữ liệu người dùng không hợp lệ" });
-            }
-
-            if (_userService.Register(user, out string message))
-            {
-                return Ok(new { message });
-            }
-            else
-            {
-                return BadRequest(new { message });
-            }
-        }
     }
 }
