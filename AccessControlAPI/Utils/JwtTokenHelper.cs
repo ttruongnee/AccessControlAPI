@@ -2,54 +2,83 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace AccessControlAPI.Utils
 {
     public class JwtTokenHelper
     {
-        private readonly ConfigurationHelper _config;
-
-        public JwtTokenHelper(ConfigurationHelper config)
+        private readonly string _key;
+        public JwtTokenHelper(IConfiguration config)
         {
-            _config = config;
+            _key = config["Jwt:Key"];
         }
 
+        // Tạo Access Token (15 phút)
         public string GenerateAccessToken(User user)
         {
-            //payload của jwt
             var claims = new[]
             {
-                new Claim("Username", user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim("type", "access") // Đánh dấu loại token
             };
 
-            //tạo khoá đối xứng (vừa dùng để ký và xác thực) từ jwt key
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config.GetJwtKey())
-            );
+            return GenerateToken(claims, 15); // 15 phút
+        }
 
-            //SigningCredentials(dùng khoá nào, thuật toán nào để ký)
+        // Tạo Refresh Token (7 ngày)
+        public string GenerateRefreshToken(User user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim("type", "refresh") // Đánh dấu loại token
+            };
+
+            return GenerateToken(claims, 7 * 24 * 60); // 7 ngày = 10080 phút
+        }
+
+        // Method dùng chung để tạo JWT
+        private string GenerateToken(Claim[] claims, int expirationMinutes)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            //tạo thông tin ký token
             var token = new JwtSecurityToken(
                 claims: claims,
-                //thời điểm token hết hạn
-                expires: DateTime.UtcNow.AddMinutes(
-                    int.Parse(_config.GetAccessTokenMinutes())
-                ),
-                //thông tin ký token
+                expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
                 signingCredentials: creds
             );
 
-            //trả về token đã được ký dưới dạng chuỗi
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateRefreshToken()
+        // Verify JWT và trả về claims
+        public ClaimsPrincipal ValidateToken(string token)
         {
-            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(_key);
+
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateLifetime = true,  //kiểm tra token hết hạn chưa
+                    ClockSkew = TimeSpan.Zero,
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                }, out _);
+
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

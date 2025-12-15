@@ -12,18 +12,16 @@ namespace AccessControlAPI.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly JwtTokenHelper _jwtTokenHelper;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly LogHelper _logHelper;
         private readonly ConfigurationHelper _configHelper;
 
 
-        public UserService(IUserRepository userRepository, JwtTokenHelper jwtTokenHelper,  LogHelper logHelper, ConfigurationHelper configHelper, IRefreshTokenRepository refreshTokenRepository)
+        public UserService(IUserRepository userRepository, JwtTokenHelper jwtTokenHelper,  LogHelper logHelper, ConfigurationHelper configHelper)
         {
             _userRepository = userRepository;
             _jwtTokenHelper = jwtTokenHelper;
             _logHelper = logHelper;
             _configHelper = configHelper;
-            _refreshTokenRepository = refreshTokenRepository;
         }
         public bool Create(UserDTO user, out string message)
         {
@@ -221,106 +219,106 @@ namespace AccessControlAPI.Services
         }
 
 
-        public bool Login(UserDTO user, out string accessToken, out string refreshToken, out string message)
-        {
-            accessToken = null;
-            refreshToken = null;
-            try
-            {
-                var existing = _userRepository.GetByUsername(user.Username);
-                if (existing == null)
-                {
-                    message = $"Người dùng có username = {user.Username} không tồn tại.";
-                    return false;
-                }
+        //public bool Login(UserDTO user, out string accessToken, out string refreshToken, out string message)
+        //{
+        //    accessToken = null;
+        //    refreshToken = null;
+        //    try
+        //    {
+        //        var existing = _userRepository.GetByUsername(user.Username);
+        //        if (existing == null)
+        //        {
+        //            message = $"Người dùng có username = {user.Username} không tồn tại.";
+        //            return false;
+        //        }
 
-                bool passwordMatch = PasswordHelper.VerifyPassword(user.Password, existing.Password);
-                if (passwordMatch)
-                {
-                    message = "Đăng nhập thành công.";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, existing.Id, "Đăng nhập", true, message);
+        //        bool passwordMatch = PasswordHelper.VerifyPassword(user.Password, existing.Password);
+        //        if (passwordMatch)
+        //        {
+        //            message = "Đăng nhập thành công.";
+        //            _logHelper.WriteLog(NLog.LogLevel.Info, null, existing.Id, "Đăng nhập", true, message);
 
-                    accessToken = _jwtTokenHelper.GenerateAccessToken(existing);
-                    refreshToken = _jwtTokenHelper.GenerateRefreshToken();
+        //            accessToken = _jwtTokenHelper.GenerateAccessToken(existing);
+        //            refreshToken = _jwtTokenHelper.GenerateRefreshToken();
 
-                    var expires = DateTime.UtcNow.AddDays(
-                        int.Parse(_configHelper.GetRefreshTokenDays())
-                    );
+        //            var expires = DateTime.UtcNow.AddDays(
+        //                int.Parse(_configHelper.GetRefreshTokenDays())
+        //            );
 
-                    _refreshTokenRepository.Save(existing.Id, refreshToken, expires);
-                    return true;
-                }
-                else
-                {
-                    message = "Mật khẩu không đúng.";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, existing.Id, "Đăng nhập", false, message);
-                    return false;
-                }
+        //            _refreshTokenRepository.Save(existing.Id, refreshToken, expires);
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            message = "Mật khẩu không đúng.";
+        //            _logHelper.WriteLog(NLog.LogLevel.Info, null, existing.Id, "Đăng nhập", false, message);
+        //            return false;
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                message = $"Lỗi hệ thống: {ex.Message}";
-                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Đăng nhập", false, message);
-                return false;
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        message = $"Lỗi hệ thống: {ex.Message}";
+        //        _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Đăng nhập", false, message);
+        //        return false;
+        //    }
+        //}
 
-        public bool Register(UserDTO user, out string message)
-        {
-            try
-            {
-                var existing = _userRepository.GetByUsername(user.Username);
-                if (existing != null)
-                {
-                    message = $"Người dùng có username = {user.Username} đã tồn tại.";
-                    return false;
-                }
+        //public bool Register(UserDTO user, out string message)
+        //{
+        //    try
+        //    {
+        //        var existing = _userRepository.GetByUsername(user.Username);
+        //        if (existing != null)
+        //        {
+        //            message = $"Người dùng có username = {user.Username} đã tồn tại.";
+        //            return false;
+        //        }
 
-                var passwordHash = PasswordHelper.HashPassword(user.Password);
-                var result = _userRepository.Create(new User { Username = user.Username, Password = passwordHash }, out int newUserId);
-                if (result)
-                {
-                    message = $"Đăng ký người dùng thành công với ID: {newUserId}";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, newUserId, "Đăng ký", true, message);
-                    return true;
-                }
-                else
-                {
-                    message = "Đăng ký người dùng thất bại";
-                    _logHelper.WriteLog(NLog.LogLevel.Info, null, null, "Đăng ký", false, message);
-                    return false;
-                }
-            }
-            catch (OracleException ex)
-            {
-                switch (ex.Number)
-                {
-                    case 1:
-                        message = "Người dùng đã tồn tại.";
-                        break;
+        //        var passwordHash = PasswordHelper.HashPassword(user.Password);
+        //        var result = _userRepository.Create(new User { Username = user.Username, Password = passwordHash }, out int newUserId);
+        //        if (result)
+        //        {
+        //            message = $"Đăng ký người dùng thành công với ID: {newUserId}";
+        //            _logHelper.WriteLog(NLog.LogLevel.Info, null, newUserId, "Đăng ký", true, message);
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            message = "Đăng ký người dùng thất bại";
+        //            _logHelper.WriteLog(NLog.LogLevel.Info, null, null, "Đăng ký", false, message);
+        //            return false;
+        //        }
+        //    }
+        //    catch (OracleException ex)
+        //    {
+        //        switch (ex.Number)
+        //        {
+        //            case 1:
+        //                message = "Người dùng đã tồn tại.";
+        //                break;
 
-                    case 1400:
-                        message = "Thiếu dữ liệu yêu cầu (NOT NULL).";
-                        break;
+        //            case 1400:
+        //                message = "Thiếu dữ liệu yêu cầu (NOT NULL).";
+        //                break;
 
-                    case 904:
-                        message = "Tên cột không hợp lệ.";
-                        break;
+        //            case 904:
+        //                message = "Tên cột không hợp lệ.";
+        //                break;
 
-                    default:
-                        message = $"Lỗi CSDL (Oracle {ex.Number}): {ex.Message}.";
-                        break;
-                }
-                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Đăng ký", false, message);
-                return false;
-            }
-            catch (Exception ex)
-            {
-                message = $"Lỗi hệ thống: {ex.Message}";
-                _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Đăng ký", false, message);
-                return false;
-            }
-        }
+        //            default:
+        //                message = $"Lỗi CSDL (Oracle {ex.Number}): {ex.Message}.";
+        //                break;
+        //        }
+        //        _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Đăng ký", false, message);
+        //        return false;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        message = $"Lỗi hệ thống: {ex.Message}";
+        //        _logHelper.WriteLog(NLog.LogLevel.Error, null, null, "Đăng ký", false, message);
+        //        return false;
+        //    }
+        //}
     }
 }

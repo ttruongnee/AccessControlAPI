@@ -8,6 +8,5 @@ namespace AccessControlAPI.Repositories.Interface
         Function GetById(string id);
         List<Function> GetChildren(string parentId);
         List<Function> GetParents();
-
     }
 }
