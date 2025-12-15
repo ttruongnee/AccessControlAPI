@@ -48,7 +48,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateUpdateUserDTO user)
+        public IActionResult Create([FromBody] UserDTO user)
         {
             if (user == null)
             {
@@ -66,7 +66,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] CreateUpdateUserDTO user)
+        public IActionResult Update(int id, [FromBody] UserDTO user)
         {
             if (user == null)
             {
@@ -86,6 +86,42 @@ namespace AccessControlAPI.Controllers
         public IActionResult Delete(int id)
         {
             if (_userService.Delete(id, out string message))
+            {
+                return Ok(new { message });
+            }
+            else
+            {
+                return BadRequest(new { message });
+            }
+        }
+
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] UserDTO user)
+        {
+            if (user == null)
+            {
+                return BadRequest(new { message = "Dữ liệu người dùng không hợp lệ" });
+            }
+
+            if (_userService.Login(user, out string message))
+            {
+                return Ok(new { message });
+            }
+            else
+            {
+                return BadRequest(new { message });
+            }
+        }
+
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] UserDTO user)
+        {
+            if (user == null)
+            {
+                return BadRequest(new { message = "Dữ liệu người dùng không hợp lệ" });
+            }
+
+            if (_userService.Register(user, out string message))
             {
                 return Ok(new { message });
             }

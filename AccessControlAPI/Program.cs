@@ -27,7 +27,6 @@ builder.Services.AddScoped<IFunctionRepository, FunctionReponsitory>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IUserFunctionRepository, UserFunctionRepository>();
 builder.Services.AddScoped<IRoleFunctionRepository, RoleFunctionRepository>();
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 //đăng ký service
 builder.Services.AddScoped<IRoleService, RoleService>();
@@ -36,7 +35,6 @@ builder.Services.AddScoped<IFunctionService, FunctionService>();
 builder.Services.AddScoped<IUserFunctionService, UserFunctionService>();
 builder.Services.AddScoped<IRoleFunctionService, RoleFunctionService>();
 builder.Services.AddScoped<IUserRoleService, UserRoleService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 
 
 var app = builder.Build();
