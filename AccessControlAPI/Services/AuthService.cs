@@ -12,16 +12,14 @@ namespace AccessControlAPI.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-        private readonly ConfigurationHelper _configHelper;
         private readonly JwtTokenHelper _jwtHelper;
         private readonly LogHelper _logHelper;
 
-        public AuthService(IUserRepository userRepository, JwtTokenHelper jwtHelper, LogHelper logHelper, ConfigurationHelper configHelper)
+        public AuthService(IUserRepository userRepository, JwtTokenHelper jwtHelper, LogHelper logHelper)
         {
             _userRepository = userRepository;
             _jwtHelper = jwtHelper;
             _logHelper = logHelper;
-            _configHelper = configHelper;
         }
 
         public bool Login(UserDTO user, out string accessToken, out string refreshToken, out string message)
@@ -30,6 +28,7 @@ namespace AccessControlAPI.Services
             refreshToken = null;
             try
             {
+                //kiểm tra tồn tại người dùng
                 var existing = _userRepository.GetByUsername(user.Username);
                 if (existing == null)
                 {
@@ -37,18 +36,16 @@ namespace AccessControlAPI.Services
                     return false;
                 }
 
+                //kiểm tra mật khẩu 
                 bool passwordMatch = PasswordHelper.VerifyPassword(user.Password, existing.Password);
                 if (passwordMatch)
                 {
                     message = "Đăng nhập thành công.";
                     _logHelper.WriteLog(NLog.LogLevel.Info, null, existing.Id, "Đăng nhập", true, message);
 
+                    //tạo token
                     accessToken = _jwtHelper.GenerateAccessToken(existing);
                     refreshToken = _jwtHelper.GenerateRefreshToken(existing);
-
-                    var expires = DateTime.UtcNow.AddDays(
-                        int.Parse(_configHelper.GetRefreshTokenDays())
-                    );
 
                     return true;
                 }
@@ -132,7 +129,7 @@ namespace AccessControlAPI.Services
 
             try
             {
-                // 1. Verify JWT signature và lifetime
+                //xác thực refresh token
                 var principal = _jwtHelper.ValidateToken(refreshToken);
                 if (principal == null)
                 {
@@ -141,17 +138,17 @@ namespace AccessControlAPI.Services
                     return false;
                 }
 
-                // 2. Kiểm tra token type
-                var tokenType = principal.FindFirst("type")?.Value;
-                if (tokenType != "refresh")
+                //kiểm tra loại token từ claims
+                var tokenType = principal.FindFirst("Type")?.Value;
+                if (tokenType != "Refresh")
                 {
                     message = "Token type không đúng";
                     _logHelper.WriteLog(NLog.LogLevel.Warn, null, null, "Refresh Token", false, message);
                     return false;
                 }
 
-                // 3. Lấy userId từ claims
-                var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                //lấy userId từ claims
+                var userIdClaim = principal.FindFirst("UserId")?.Value;
                 if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 {
                     message = "Token không hợp lệ - Không tìm thấy mã người dùng";
@@ -159,7 +156,7 @@ namespace AccessControlAPI.Services
                     return false;
                 }
 
-                // 4. Tìm user trong database
+                //tìm user vừa lấy được trong database
                 var user = _userRepository.GetById(userId);
                 if (user == null)
                 {
@@ -168,7 +165,7 @@ namespace AccessControlAPI.Services
                     return false;
                 }
 
-                // 5. Tạo CẢ HAI token mới (TOKEN ROTATION)
+                //tạo token mới
                 newAccessToken = _jwtHelper.GenerateAccessToken(user);
                 newRefreshToken = _jwtHelper.GenerateRefreshToken(user);
 

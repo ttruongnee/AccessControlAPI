@@ -1,5 +1,6 @@
 ﻿using AccessControlAPI.DTOs;
 using AccessControlAPI.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccessControlAPI.Controllers
@@ -37,6 +38,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Create([FromBody] CreateUpdateRoleDTO role)
         {
             if (role == null)
@@ -55,6 +57,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public IActionResult Update(int id, [FromBody] CreateUpdateRoleDTO role)
         {
             if (role == null)
@@ -72,6 +75,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public IActionResult Delete(int id)
         {
             if (_roleService.Delete(id, out string message))

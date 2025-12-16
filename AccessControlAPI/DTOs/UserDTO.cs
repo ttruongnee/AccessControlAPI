@@ -12,9 +12,11 @@ namespace AccessControlAPI.DTOs
 
     public class UserDTO
     {
-        [Required]
+        [Required(ErrorMessage = "Username là bắt buộc")]
+        //[StringLength(50, MinimumLength = 3, ErrorMessage = "Username phải từ 3-50 ký tự")]
         public string Username { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Password là bắt buộc")]
         public string Password { get; set; }
     }
 }

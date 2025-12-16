@@ -44,7 +44,6 @@ builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 
-
 var jwtKey = builder.Configuration["Jwt:Key"];
 
 if (string.IsNullOrEmpty(jwtKey))
@@ -52,30 +51,40 @@ if (string.IsNullOrEmpty(jwtKey))
     throw new Exception("JWT Key chưa được cấu hình trong appsettings.json");
 }
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//đăng ký Authentication (xác thực)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // sử dụng Bearer token
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ValidateIssuerSigningKey = true, //kiểm tra chữ ký token 
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),  //key dùng để verify chữ ký
+            ValidateIssuer = false,  //không kiểm tra nhà phát hành
+            ValidateAudience = false, //không kiểm tra người nhận
+            ValidateLifetime = true,  //kiểm tra thời gian hết hạn
+            ClockSkew = TimeSpan.Zero  //không cho phép sai lệch thời gian
         };
     });
 
+//đăng ký Authorization (phân quyền)
 builder.Services.AddAuthorization();
 
-// ========== CORS ==========
+//đăng ký CORS 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.AllowAnyOrigin()    //cho phép mọi domain gọi api
+              .AllowAnyMethod()    //Cho phép mọi HTTP method (GET, POST, PUT, DELETE, ...)
+              .AllowAnyHeader();   //cho phép mọi header 
+    });
+
+    options.AddPolicy("Development", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")  // ← Chỉ định cụ thể domain được phép gọi API
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();  //cho phép gửi cookie, header xác thực
     });
 });
 
@@ -90,8 +99,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
-app.UseAuthentication();  // ← Phải có và phải TRƯỚC UseAuthorization
+//app.UseCors("AllowAll");
+app.UseCors("Development");  
+
+app.UseAuthentication();  //Phải có và phải TRƯỚC UseAuthorization
 app.UseAuthorization(); 
 
 app.MapControllers();

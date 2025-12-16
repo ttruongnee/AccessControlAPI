@@ -1,4 +1,5 @@
 ﻿using AccessControlAPI.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,6 +33,7 @@ namespace AccessControlAPI.Controllers
 
 
         [HttpDelete("{userId}")]
+        [Authorize]
         public IActionResult DeleteRolesFromUser(int userId)
         {
             if (_userRoleService.DeleteRolesFromUser(userId, out string message))
@@ -45,6 +47,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPut("{userId}")]
+        [Authorize]
         public IActionResult UpdateRolesForUser(int userId, [FromBody] List<int> roleIds)
         {
             if (roleIds == null)

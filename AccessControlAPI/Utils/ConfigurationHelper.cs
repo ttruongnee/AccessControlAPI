@@ -35,14 +35,14 @@
             return _config["Jwt:Key"];
         }
 
-        public string GetAccessTokenMinutes()
+        public int GetAccessTokenMinutes()
         {
-            return _config["Jwt:AccessTokenMinutes"];
+            return int.Parse(_config["Jwt:AccessTokenMinutes"]);
         }
 
-        public string GetRefreshTokenDays()
+        public int GetRefreshTokenDays()
         {
-            return _config["Jwt:RefreshTokenDays"];
+            return int.Parse(_config["Jwt:RefreshTokenDays"]);
         }
     }
 }

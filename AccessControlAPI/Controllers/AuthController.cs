@@ -1,5 +1,6 @@
 ﻿using AccessControlAPI.DTOs;
 using AccessControlAPI.Services.Interface;
+using AccessControlAPI.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,55 +11,46 @@ namespace AccessControlAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly int _refreshTokenDays;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, ConfigurationHelper configurationHelper)
         {
             _authService = authService;
+            _refreshTokenDays = configurationHelper.GetRefreshTokenDays();
         }
 
         [HttpPost("login")]
-        [AllowAnonymous]
         public IActionResult Login([FromBody] UserDTO user)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var success = _authService.Login(user, out string accessToken, out string refreshToken, out string message);
 
             if (!success)
             {
+                //ném lỗi 401
                 return Unauthorized(new { message });
             }
 
-            // Set refresh token vào httpOnly cookie
+            //set refresh token vào httpOnly cookie
             Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
             {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddDays(7)
+                HttpOnly = true,  //js không thể đọc cookie này
+                Secure = true, //chỉ gửi qua kết nối HTTPS để chống MITM (man-in-the-middle) tấn công
+                SameSite = SameSiteMode.Strict, //Cookie CHỈ gửi khi request từ CÙNG DOMAIN, chống CSRF (Cross-Site Request Forgery)
+                Expires = DateTime.UtcNow.AddDays(_refreshTokenDays)
             });
 
             return Ok(new
             {
                 message,
-                accessToken,
-                username = user.Username
+                username = user.Username,
+                accessToken
             });
         }
 
 
         [HttpPost("register")]
-        [AllowAnonymous]
         public IActionResult Register([FromBody] UserDTO user)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var success = _authService.Register(user, out string message);
 
             if (!success)
@@ -69,8 +61,8 @@ namespace AccessControlAPI.Controllers
             return Ok(new { message });
         }
 
+
         [HttpPost("refresh")]
-        [AllowAnonymous]
         public IActionResult RefreshToken()
         {
             // Lấy refresh token từ cookie
@@ -121,18 +113,18 @@ namespace AccessControlAPI.Controllers
         }
 
 
-        [HttpGet("protected")]
-        [Authorize]
-        public IActionResult Protected()
-        {
-            var username = User.Identity?.Name;
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        //[HttpGet("protected")]
+        //[Authorize]
+        //public IActionResult Protected()
+        //{
+        //    var username = User.Identity?.Name;
+        //    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            return Ok(new
-            {
-                message = $"Xin chào {username}!",
-                userId = userId
-            });
-        }
+        //    return Ok(new
+        //    {
+        //        message = $"Xin chào {username}!",
+        //        userId = userId
+        //    });
+        //}
     }
 }
