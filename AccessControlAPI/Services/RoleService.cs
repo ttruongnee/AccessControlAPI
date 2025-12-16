@@ -10,11 +10,13 @@ namespace AccessControlAPI.Services
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IRoleFunctionRepository _roleFunctionRepository;
         private readonly LogHelper _logHelper;
-        public RoleService(IRoleRepository roleRepository, LogHelper logHelper)
+        public RoleService(IRoleRepository roleRepository, LogHelper logHelper, IRoleFunctionRepository roleFunctionRepository)
         {
             _roleRepository = roleRepository;
             _logHelper = logHelper;
+            _roleFunctionRepository = roleFunctionRepository;
         }
 
         public bool Create(CreateUpdateRoleDTO role, out string message)
@@ -121,7 +123,18 @@ namespace AccessControlAPI.Services
             return roles.Select(r => new RoleDTO
             {
                 Id = r.Id,
-                Name = r.Name
+                Name = r.Name,
+                Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionDTO
+                {
+                    Id = f.Id,
+                    Name = f.Name,
+                    Sort_order = f.Sort_order,
+                    Parent_id = f.Parent_id,
+                    Show_search = f.Show_search,
+                    Show_add = f.Show_add,
+                    Show_update = f.Show_update,
+                    Show_delete = f.Show_delete
+                }).ToList()
             }).ToList();
         }
 
@@ -135,7 +148,18 @@ namespace AccessControlAPI.Services
             return new RoleDTO
             {
                 Id = role.Id,
-                Name = role.Name
+                Name = role.Name,
+                Functions = _roleFunctionRepository.GetFunctionsByRoleId(role.Id).Select(f => new FunctionDTO
+                {
+                    Id = f.Id,
+                    Name = f.Name,
+                    Sort_order = f.Sort_order,
+                    Parent_id = f.Parent_id,
+                    Show_search = f.Show_search,
+                    Show_add = f.Show_add,
+                    Show_update = f.Show_update,
+                    Show_delete = f.Show_delete
+                }).ToList()
             };
         }
 

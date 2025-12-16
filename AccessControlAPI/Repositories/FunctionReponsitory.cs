@@ -20,32 +20,5 @@ namespace AccessControlAPI.Repositories
                 return conn.Query<Function>(sql).ToList();
             }
         }
-
-        public Function GetById(string id)
-        {
-            using (var conn = _oracleDb.GetConnection())
-            {
-                string sql = "select * from functions where id = :id";
-                return conn.QueryFirstOrDefault<Function>(sql, new { id });
-            }
-        }
-
-        public List<Function> GetChildren(string parentId)
-        {
-            using (var conn = _oracleDb.GetConnection())
-            {
-                string query = @"SELECT * FROM functions WHERE parent_id = :parentId ORDER BY sort_order";
-                return conn.Query<Function>(query, new { parentId }).ToList();
-            }
-        }
-
-        public List<Function> GetParents()
-        {
-            using (var conn = _oracleDb.GetConnection())
-            {
-                string sql = "select * from functions where parent_id is null order by sort_order";
-                return conn.Query<Function>(sql).ToList();
-            }
-        }
     }
 }

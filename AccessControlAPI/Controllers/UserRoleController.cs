@@ -47,7 +47,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPut("{userId}")]
-        [Authorize]
+        //[Authorize]
         public IActionResult UpdateRolesForUser(int userId, [FromBody] List<int> roleIds)
         {
             if (roleIds == null)

@@ -36,28 +36,5 @@ namespace AccessControlAPI.Controllers
             }
             return Ok(function);
         }
-
-        [HttpGet("Children/{parentId}")]
-        public IActionResult GetChildren(string parentId)
-        {
-            parentId = parentId.Trim().ToUpper();
-            var functions = _functionService.GetChildren(parentId);
-            if (functions.Count == 0)
-            {
-                return NotFound(new { message = "Chưa có chức năng con nào!" });
-            }
-            return Ok(functions);
-        }
-
-        [HttpGet("Parents")]
-        public IActionResult GetParents()
-        {
-            var functions = _functionService.GetParents();
-            if (functions.Count == 0)
-            {
-                return NotFound(new { message = "Chưa có chức năng cha nào!" });
-            }
-            return Ok(functions);
-        }
     }
 }

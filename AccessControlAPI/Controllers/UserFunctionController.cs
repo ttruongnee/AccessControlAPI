@@ -46,7 +46,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPut("{userId}")]
-        [Authorize]
+        //[Authorize]
         public IActionResult UpdateFunctionsForUser(int userId, [FromBody] List<string> functionIds)
         {
             if (functionIds == null)
