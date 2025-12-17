@@ -36,8 +36,8 @@ namespace AccessControlAPI.Utils
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
+                new Claim("UserId", user.Id.ToString()),
+                new Claim("Username", user.Username),
                 new Claim("Type", "Refresh") // Đánh dấu loại token
             };
 

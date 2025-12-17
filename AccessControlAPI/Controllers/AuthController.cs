@@ -111,20 +111,5 @@ namespace AccessControlAPI.Controllers
             Response.Cookies.Delete("refreshToken");
             return Ok(new { message = "Đăng xuất thành công" });
         }
-
-
-        //[HttpGet("protected")]
-        //[Authorize]
-        //public IActionResult Protected()
-        //{
-        //    var username = User.Identity?.Name;
-        //    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-        //    return Ok(new
-        //    {
-        //        message = $"Xin chào {username}!",
-        //        userId = userId
-        //    });
-        //}
     }
 }

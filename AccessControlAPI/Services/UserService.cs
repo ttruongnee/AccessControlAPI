@@ -16,17 +16,15 @@ namespace AccessControlAPI.Services
         private readonly IUserFunctionRepository _userFunctionRepository;
 
         private readonly IRoleFunctionRepository _roleFunctionRepository;
-        private readonly IFunctionService _functionService;
         private readonly LogHelper _logHelper;
 
 
-        public UserService(IUserRepository userRepository, LogHelper logHelper, IUserRoleRepository userRoleRepository, IUserFunctionRepository userFunctionRepository, IRoleFunctionRepository roleFunctionRepository, IFunctionService functionService)
+        public UserService(IUserRepository userRepository, LogHelper logHelper, IUserRoleRepository userRoleRepository, IUserFunctionRepository userFunctionRepository, IRoleFunctionRepository roleFunctionRepository)
         {
             _userRepository = userRepository;
             _userRoleRepository = userRoleRepository;
             _userFunctionRepository = userFunctionRepository;
             _roleFunctionRepository = roleFunctionRepository;
-            _functionService = functionService;
             _logHelper = logHelper;
         }
         public bool Create(UserDTO user, out string message)
@@ -144,7 +142,7 @@ namespace AccessControlAPI.Services
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionDTO
+                    Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionNoChildrenDTO
                     {
                         Id = f.Id,
                         Name = f.Name,
@@ -153,8 +151,7 @@ namespace AccessControlAPI.Services
                         Show_search = f.Show_search,
                         Show_add = f.Show_add,
                         Show_update = f.Show_update,
-                        Show_delete = f.Show_delete,
-                        Children = _functionService.GetById(f.Id).Children
+                        Show_delete = f.Show_delete
                     }).ToList()
                 }).ToList(),
 
@@ -187,7 +184,7 @@ namespace AccessControlAPI.Services
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionDTO
+                    Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionNoChildrenDTO
                     {
                         Id = f.Id,
                         Name = f.Name,
@@ -197,7 +194,6 @@ namespace AccessControlAPI.Services
                         Show_add = f.Show_add,
                         Show_update = f.Show_update,
                         Show_delete = f.Show_delete,
-                        Children = _functionService.GetById(f.Id).Children
                     }).ToList()
                 }).ToList(),
 
@@ -230,7 +226,7 @@ namespace AccessControlAPI.Services
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionDTO
+                    Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionNoChildrenDTO
                     {
                         Id = f.Id,
                         Name = f.Name,
@@ -239,8 +235,7 @@ namespace AccessControlAPI.Services
                         Show_search = f.Show_search,
                         Show_add = f.Show_add,
                         Show_update = f.Show_update,
-                        Show_delete = f.Show_delete,
-                        Children = _functionService.GetById(f.Id).Children
+                        Show_delete = f.Show_delete
                     }).ToList()
                 }).ToList(),
 
@@ -288,6 +283,10 @@ namespace AccessControlAPI.Services
             {
                 switch (ex.Number)
                 {
+                    case 1: 
+                        message = "Username đã tồn tại, vui lòng chọn username khác.";
+                        break;
+
                     case 1407:
                         message = "Thiếu dữ liệu yêu cầu (NOT NULL).";
                         break;

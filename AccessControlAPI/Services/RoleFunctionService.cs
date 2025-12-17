@@ -103,13 +103,6 @@ namespace AccessControlAPI.Services
                 return false;
             }
 
-            //var existing = _roleFunctionRepository.GetFunctionsByRoleId(roleId);
-            //if (existing.Count == 0)
-            //{
-            //    message = $"Vai trò với ID = {roleId} hiện tại không có chức năng nào";
-            //    return false;
-            //}
-
             try
             {
                 var result = _roleFunctionRepository.UpdateFunctionsForRole(roleId, functionIds);

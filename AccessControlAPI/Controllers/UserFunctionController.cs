@@ -15,8 +15,24 @@ namespace AccessControlAPI.Controllers
             _userFunctionService = userFunctionService;
         }
 
-        [HttpGet("{userId}")]
-        public IActionResult GetFunctionByUserId(int userId)
+        [HttpGet("AllFunctions/{userId}")]
+        public IActionResult GetAllFunctionsByUserId(int userId)
+        {
+            var functions = _userFunctionService.GetAllFunctionsByUserId(userId);
+            if (functions == null)
+            {
+                return NotFound(new { message = $"Người dùng {userId} không tồn tại!" });
+            }
+
+            if (functions.Count == 0)
+            {
+                return NotFound(new { message = $"Người dùng {userId} không có chức năng nào!" });
+            }
+            return Ok(functions);
+        }
+
+        [HttpGet("UserFunctions/{userId}")]
+        public IActionResult GetFunctionsByUserId(int userId)
         {
             var functions = _userFunctionService.GetFunctionsByUserId(userId);
             if (functions == null)

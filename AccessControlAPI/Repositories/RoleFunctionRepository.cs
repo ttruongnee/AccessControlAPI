@@ -28,7 +28,7 @@ namespace AccessControlAPI.Repositories
             using (var conn = _oracleDb.GetConnection())
             {
                 string sql = @"
-                                SELECT f.*
+                                SELECT rf.ROLE_ID, f.*
                                 FROM functions f
                                 INNER JOIN roles_functions rf ON f.id = rf.function_id
                                 WHERE rf.role_id = :roleId";

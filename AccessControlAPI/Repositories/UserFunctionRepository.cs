@@ -13,36 +13,7 @@ namespace AccessControlAPI.Repositories
             _oracleDb = oracleDb;
         }
 
-        ////gán quyền cho user
-        //public bool AddFunctionsForUser(int userId, List<string> functionIds)
-        //{
-        //    using (var conn = _oracleDb.GetConnection())
-        //    {
-        //        conn.Open();
-        //        using(var transaction = conn.BeginTransaction())
-        //        {   
-        //            try
-        //            {
-        //                string sql = "insert into users_functions (user_id, function_id) values (:userId, :functionId)";
-        //                foreach (var functionId in functionIds)
-        //                {
-        //                    conn.Execute(sql, new { userId, functionId }, transaction: transaction);
-        //                }
-        //                transaction.Commit();
-        //                return true;
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                transaction.Rollback();
-        //                throw;
-        //                //return false;
-        //            }
-        //        }
-        //    }
-        //}
-
         //xoá toàn bộ quyền của user
-
         public bool DeleteFunctionsFromUser(int userId)
         {
             using (var conn = _oracleDb.GetConnection())
