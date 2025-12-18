@@ -4,6 +4,7 @@ using AccessControlAPI.Repositories.Interface;
 using AccessControlAPI.Services.Interface;
 using AccessControlAPI.Utils;
 using Oracle.ManagedDataAccess.Client;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AccessControlAPI.Services
 {
@@ -124,17 +125,9 @@ namespace AccessControlAPI.Services
             {
                 Id = r.Id,
                 Name = r.Name,
-                Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionDTO
-                {
-                    Id = f.Id,
-                    Name = f.Name,
-                    Sort_order = f.Sort_order,
-                    Parent_id = f.Parent_id,
-                    Show_search = f.Show_search,
-                    Show_add = f.Show_add,
-                    Show_update = f.Show_update,
-                    Show_delete = f.Show_delete
-                }).ToList()
+                Functions = FunctionTreeHelper.BuildTree(
+                    _roleFunctionRepository.GetFunctionsByRoleId(r.Id)
+                )
             }).ToList();
         }
 
@@ -145,21 +138,14 @@ namespace AccessControlAPI.Services
             {
                 return null;
             }
+
+            var functions = _roleFunctionRepository.GetFunctionsByRoleId(role.Id);
+
             return new RoleDTO
             {
                 Id = role.Id,
                 Name = role.Name,
-                Functions = _roleFunctionRepository.GetFunctionsByRoleId(role.Id).Select(f => new FunctionDTO
-                {
-                    Id = f.Id,
-                    Name = f.Name,
-                    Sort_order = f.Sort_order,
-                    Parent_id = f.Parent_id,
-                    Show_search = f.Show_search,
-                    Show_add = f.Show_add,
-                    Show_update = f.Show_update,
-                    Show_delete = f.Show_delete
-                }).ToList()
+                Functions = FunctionTreeHelper.BuildTree(functions)
             };
         }
 
