@@ -9,13 +9,15 @@ namespace AccessControlAPI.Services
     public class RoleFunctionService : IRoleFunctionService
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IFunctionRepository _functionRepository;
         private readonly IRoleFunctionRepository _roleFunctionRepository;
         private readonly LogHelper _logHelper;
-        public RoleFunctionService(IRoleRepository roleRepository, IRoleFunctionRepository roleFunctionRepository, LogHelper logHelper)
+        public RoleFunctionService(IRoleRepository roleRepository, IRoleFunctionRepository roleFunctionRepository, LogHelper logHelper, IFunctionRepository functionRepository)
         {
             _roleRepository = roleRepository;
             _roleFunctionRepository = roleFunctionRepository;
             _logHelper = logHelper;
+            _functionRepository = functionRepository;
         }
         public bool DeleteFunctionsFromRole(int roleId, out string message)
         {
@@ -81,17 +83,7 @@ namespace AccessControlAPI.Services
             }
 
             var functions = _roleFunctionRepository.GetFunctionsByRoleId(roleId);
-            return functions.Select(f => new FunctionDTO
-            {
-                Id = f.Id,
-                Name = f.Name,
-                Sort_order = f.Sort_order,
-                Parent_id = f.Parent_id,
-                Show_search = f.Show_search,
-                Show_add = f.Show_add,
-                Show_update = f.Show_update,
-                Show_delete = f.Show_delete
-            }).ToList();
+            return FunctionTreeHelper.BuildTree(functions);
         }
 
         public bool UpdateFunctionsForRole(int roleId, List<string> functionIds, out string message)
@@ -100,6 +92,51 @@ namespace AccessControlAPI.Services
             if (existingRole == null)
             {
                 message = $"Vai trò với ID = {roleId} không tồn tại";
+                return false;
+            }
+
+            if (functionIds == null || functionIds.Count == 0)
+            {
+                message = "Danh sách chức năng không được rỗng.";
+                return false;
+            }
+
+            //Validate EXPLICIT permissions - Phải có CHA mới được có CON
+            var allFunctions = _functionRepository.GetAll();  //lấy toàn bộ functions trong hệ thống
+            var functionDict = allFunctions.ToDictionary(f => f.Id);  //chuyển sang dictionary để tra cứu nhanh
+            var missingParents = new List<string>();  //danh sách parent bị thiếu (tức là có con nhưng không có cha)
+
+            foreach (var functionId in functionIds)
+            {
+                //kiểm tra functionId có tồn tại không
+                if (!functionDict.ContainsKey(functionId))
+                {
+                    message = $"Function ID không tồn tại: {functionId}";
+                    return false;
+                }
+
+                var function = functionDict[functionId];
+
+                //nếu có parent_id
+                if (!string.IsNullOrEmpty(function.Parent_id))
+                {
+                    //kiểm tra parent_id có trong functionIds (danh sách gán cho user mà người dùng truyền vào) không
+                    if (!functionIds.Contains(function.Parent_id))  //nếu không có cha mà có con
+                    {
+                        //thêm vào danh sách parent bị thiếu (nếu chưa có)
+                        if (!missingParents.Contains(function.Parent_id))
+                        {
+                            missingParents.Add(function.Parent_id);
+                        }
+                    }
+                }
+            }
+
+            //nếu tồn tại parent bị thiếu thì return false với message chi tiết
+            if (missingParents.Count > 0)
+            {
+                message = $"Thiếu parent functions: {string.Join(", ", missingParents)}. " +
+                         "Phải có parent mới được chọn children.";
                 return false;
             }
 

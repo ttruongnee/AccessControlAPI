@@ -5,14 +5,12 @@ namespace AccessControlAPI.Utils
 {
     public static class FunctionTreeHelper
     {
-        /// <summary>
-        /// Build tree từ flat list functions - ALL IN ONE
-        /// </summary>
+        //build tree từ flat list functions - ALL IN ONE
         public static List<FunctionDTO> BuildTree(List<Function> functions)
         {
             var tree = new Dictionary<string, FunctionDTO>();
 
-            // Bước 1: Convert sang DTO
+            //convert sang DTO
             foreach (var func in functions)
             {
                 tree[func.Id] = new FunctionDTO
@@ -29,7 +27,7 @@ namespace AccessControlAPI.Utils
                 };
             }
 
-            // Bước 2: Nối children vào parent
+            //nối children vào parent
             foreach (var func in functions)
             {
                 if (!string.IsNullOrEmpty(func.Parent_id) && tree.ContainsKey(func.Parent_id))
@@ -38,7 +36,7 @@ namespace AccessControlAPI.Utils
                 }
             }
 
-            // Bước 3: Lấy roots + sort
+            //lấy các node gốc (không có parent) và sắp xếp theo Sort_order (trong node gốc đã có children được nối)
             var roots = tree.Values
                 .Where(n => string.IsNullOrEmpty(n.Parent_id))
                 .OrderBy(n => n.Sort_order)
@@ -48,9 +46,7 @@ namespace AccessControlAPI.Utils
             return roots;
         }
 
-        /// <summary>
-        /// Sort children đệ quy
-        /// </summary>
+        //sort children đệ quy
         private static void SortChildren(List<FunctionDTO> nodes)
         {
             foreach (var node in nodes)
