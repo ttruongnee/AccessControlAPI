@@ -124,7 +124,7 @@ namespace AccessControlAPI.Services
             {
                 Id = r.Id,
                 Name = r.Name,
-                Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionNoChildrenDTO
+                Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionDTO
                 {
                     Id = f.Id,
                     Name = f.Name,
@@ -149,7 +149,7 @@ namespace AccessControlAPI.Services
             {
                 Id = role.Id,
                 Name = role.Name,
-                Functions = _roleFunctionRepository.GetFunctionsByRoleId(role.Id).Select(f => new FunctionNoChildrenDTO
+                Functions = _roleFunctionRepository.GetFunctionsByRoleId(role.Id).Select(f => new FunctionDTO
                 {
                     Id = f.Id,
                     Name = f.Name,

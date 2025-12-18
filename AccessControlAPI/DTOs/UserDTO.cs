@@ -8,8 +8,7 @@ namespace AccessControlAPI.DTOs
         public int Id { get; set; }
         [Required]
         public string Username { get; set; }
-        public List<RoleDTO> Roles { get; set; } = new List<RoleDTO>();
-        public List<FunctionNoChildrenDTO> Functions { get; set; } = new List<FunctionNoChildrenDTO>(); 
+        public List<RoleNoListFunctionsDTO> Roles { get; set; } = new List<RoleNoListFunctionsDTO>();
     }
 
     public class UserDTO

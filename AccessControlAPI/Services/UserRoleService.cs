@@ -10,12 +10,14 @@ namespace AccessControlAPI.Services
     {
         private readonly IUserRoleRepository _userRoleRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IRoleFunctionRepository _roleFunctionRepository;
         private readonly LogHelper _logHelper;
-        public UserRoleService(IUserRoleRepository userRoleRepository, IUserRepository userRepository, LogHelper logHelper)
+        public UserRoleService(IUserRoleRepository userRoleRepository, IUserRepository userRepository, LogHelper logHelper, IRoleFunctionRepository roleFunctionRepository)
         {
             _userRoleRepository = userRoleRepository;
             _userRepository = userRepository;
             _logHelper = logHelper;
+            _roleFunctionRepository = roleFunctionRepository;
         }
 
         public bool DeleteRolesFromUser(int userId, out string message)
@@ -80,12 +82,14 @@ namespace AccessControlAPI.Services
             {
                 return null;
             }
-
-            var functions = _userRoleRepository.GetRolesByUserId(userId);
-            return functions.Select(f => new RoleDTO
+            var roles = _userRoleRepository.GetRolesByUserId(userId);
+            return roles.Select(role => new RoleDTO
             {
-                Id = f.Id,
-                Name = f.Name
+                Id = role.Id,
+                Name = role.Name,
+                Functions = FunctionTreeHelper.BuildTree(
+                    _roleFunctionRepository.GetFunctionsByRoleId(role.Id)
+                )
             }).ToList();
         }
 

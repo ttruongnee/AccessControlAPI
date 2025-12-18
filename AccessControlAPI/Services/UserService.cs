@@ -13,20 +13,16 @@ namespace AccessControlAPI.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IUserRoleRepository _userRoleRepository;
-        private readonly IUserFunctionRepository _userFunctionRepository;
-
-        private readonly IRoleFunctionRepository _roleFunctionRepository;
         private readonly LogHelper _logHelper;
 
 
-        public UserService(IUserRepository userRepository, LogHelper logHelper, IUserRoleRepository userRoleRepository, IUserFunctionRepository userFunctionRepository, IRoleFunctionRepository roleFunctionRepository)
+        public UserService(IUserRepository userRepository, LogHelper logHelper, IUserRoleRepository userRoleRepository)
         {
             _userRepository = userRepository;
             _userRoleRepository = userRoleRepository;
-            _userFunctionRepository = userFunctionRepository;
-            _roleFunctionRepository = roleFunctionRepository;
             _logHelper = logHelper;
         }
+
         public bool Create(UserDTO user, out string message)
         {
             var existing = _userRepository.GetByUsername(user.Username);
@@ -138,33 +134,10 @@ namespace AccessControlAPI.Services
             {
                 Id = u.Id,
                 Username = u.Username,
-                Roles = _userRoleRepository.GetRolesByUserId(u.Id).Select(r => new RoleDTO
+                Roles = _userRoleRepository.GetRolesByUserId(u.Id).Select(r => new RoleNoListFunctionsDTO
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionNoChildrenDTO
-                    {
-                        Id = f.Id,
-                        Name = f.Name,
-                        Sort_order = f.Sort_order,
-                        Parent_id = f.Parent_id,
-                        Show_search = f.Show_search,
-                        Show_add = f.Show_add,
-                        Show_update = f.Show_update,
-                        Show_delete = f.Show_delete
-                    }).ToList()
-                }).ToList(),
-
-                Functions = _userFunctionRepository.GetFunctionsByUserId(u.Id).Select(f => new FunctionNoChildrenDTO
-                {
-                    Id = f.Id,
-                    Name = f.Name,
-                    Sort_order = f.Sort_order,
-                    Parent_id = f.Parent_id,
-                    Show_search = f.Show_search,
-                    Show_add = f.Show_add,
-                    Show_update = f.Show_update,
-                    Show_delete = f.Show_delete
                 }).ToList()
             }).ToList();    
         }
@@ -180,33 +153,10 @@ namespace AccessControlAPI.Services
             {
                 Id = user.Id,
                 Username = user.Username,
-                Roles = _userRoleRepository.GetRolesByUserId(user.Id).Select(r => new RoleDTO
+                Roles = _userRoleRepository.GetRolesByUserId(user.Id).Select(r => new RoleNoListFunctionsDTO
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionNoChildrenDTO
-                    {
-                        Id = f.Id,
-                        Name = f.Name,
-                        Sort_order = f.Sort_order,
-                        Parent_id = f.Parent_id,
-                        Show_search = f.Show_search,
-                        Show_add = f.Show_add,
-                        Show_update = f.Show_update,
-                        Show_delete = f.Show_delete,
-                    }).ToList()
-                }).ToList(),
-
-                Functions = _userFunctionRepository.GetFunctionsByUserId(user.Id).Select(f => new FunctionNoChildrenDTO
-                {
-                    Id = f.Id,
-                    Name = f.Name,
-                    Sort_order = f.Sort_order,
-                    Parent_id = f.Parent_id,
-                    Show_search = f.Show_search,
-                    Show_add = f.Show_add,
-                    Show_update = f.Show_update,
-                    Show_delete = f.Show_delete
                 }).ToList()
             };
         }
@@ -222,33 +172,10 @@ namespace AccessControlAPI.Services
             {
                 Id = user.Id,
                 Username = user.Username,
-                Roles = _userRoleRepository.GetRolesByUserId(user.Id).Select(r => new RoleDTO
+                Roles = _userRoleRepository.GetRolesByUserId(user.Id).Select(r => new RoleNoListFunctionsDTO
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Functions = _roleFunctionRepository.GetFunctionsByRoleId(r.Id).Select(f => new FunctionNoChildrenDTO
-                    {
-                        Id = f.Id,
-                        Name = f.Name,
-                        Sort_order = f.Sort_order,
-                        Parent_id = f.Parent_id,
-                        Show_search = f.Show_search,
-                        Show_add = f.Show_add,
-                        Show_update = f.Show_update,
-                        Show_delete = f.Show_delete
-                    }).ToList()
-                }).ToList(),
-
-                Functions = _userFunctionRepository.GetFunctionsByUserId(user.Id).Select(f => new FunctionNoChildrenDTO
-                {
-                    Id = f.Id,
-                    Name = f.Name,
-                    Sort_order = f.Sort_order,
-                    Parent_id = f.Parent_id,
-                    Show_search = f.Show_search,
-                    Show_add = f.Show_add,
-                    Show_update = f.Show_update,
-                    Show_delete = f.Show_delete
                 }).ToList()
             };
         }
