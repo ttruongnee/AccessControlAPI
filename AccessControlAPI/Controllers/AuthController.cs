@@ -35,7 +35,7 @@ namespace AccessControlAPI.Controllers
             {
                 HttpOnly = true,  //js không thể đọc cookie này
                 Secure = true, //chỉ gửi qua kết nối HTTPS để chống MITM (man-in-the-middle) tấn công
-                SameSite = SameSiteMode.Strict, //Cookie CHỈ gửi khi request từ CÙNG DOMAIN, chống CSRF (Cross-Site Request Forgery)
+                SameSite = SameSiteMode.None, //Cookie CHỈ gửi khi request từ CÙNG DOMAIN, chống CSRF (Cross-Site Request Forgery)
                 Expires = DateTime.UtcNow.AddDays(_refreshTokenDays)
             });
 
@@ -92,7 +92,7 @@ namespace AccessControlAPI.Controllers
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 

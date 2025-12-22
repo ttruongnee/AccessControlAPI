@@ -72,16 +72,16 @@ builder.Services.AddAuthorization();
 //đăng ký CORS 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()    //cho phép mọi domain gọi api
-              .AllowAnyMethod()    //Cho phép mọi HTTP method (GET, POST, PUT, DELETE, ...)
-              .AllowAnyHeader();   //cho phép mọi header 
-    });
+    //options.AddPolicy("AllowAll", policy =>
+    //{
+    //    policy.AllowAnyOrigin()    //cho phép mọi domain gọi api
+    //          .AllowAnyMethod()    //Cho phép mọi HTTP method (GET, POST, PUT, DELETE, ...)
+    //          .AllowAnyHeader();   //cho phép mọi header 
+    //});
 
     options.AddPolicy("Development", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")  // ← Chỉ định cụ thể domain được phép gọi API
+        policy.WithOrigins("http://localhost:5173")  // ← Chỉ định cụ thể domain được phép gọi API
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();  //cho phép gửi cookie, header xác thực

@@ -90,7 +90,7 @@ namespace AccessControlAPI.Services
         //cập nhật chức năng cho user với validate EXPLICIT permissions (phải có CHA mới được có CON)
         public bool UpdateFunctionsForUser(int userId, List<string> functionIds, out string message)
         {
-            //kiểm tra tồn tại người dùng
+            //KIỂM TRA TỒN TẠI NGƯỜI DÙNG
             var existingUser = _userRepository.GetById(userId);
             if (existingUser == null)
             {
@@ -98,14 +98,15 @@ namespace AccessControlAPI.Services
                 return false;
             }
 
-            //kiểm tra danh sách functionIds không rỗng
+            //KIỂM TRA DANH SÁCH functionIds TRUYỀN VÀO KHÔNG RỖNG
             if (functionIds == null || functionIds.Count == 0)
             {
                 message = "Hàm gán cho user không được rỗng.";
                 return false;
             }
 
-            //Validate EXPLICIT permissions - Phải có CHA mới được có CON
+
+            //Validate EXPLICIT permissions - KIỂM TRA PHẢI CÓ CHA MỚI ĐƯỢC CÓ CON 
             var allFunctions = _functionRepository.GetAll();  //lấy toàn bộ functions trong hệ thống
             var functionDict = allFunctions.ToDictionary(f => f.Id);  //chuyển sang dictionary để tra cứu nhanh
             var missingParents = new List<string>();  //danh sách parent bị thiếu (tức là có con nhưng không có cha)
@@ -141,6 +142,41 @@ namespace AccessControlAPI.Services
             {
                 message = $"Thiếu parent functions: {string.Join(", ", missingParents)}. " +
                          "Phải có parent mới được chọn children.";
+                return false;
+            }
+
+            //KIỂM TRA CHA PHẢI CÓ ÍT NHẤT 1 CON
+            var parentsWithoutChildren = new List<string>();
+
+            foreach (var functionId in functionIds)
+            {
+                var function = functionDict[functionId];
+
+                //allFunctions đã lấy toàn bộ function trong hệ thống từ trước
+                //kiểm tra functionId có con không, nếu có thì phải kiểm tra con có được chọn không
+                var hasChildren = allFunctions.Any(f => f.Parent_id == functionId);
+
+                if (hasChildren)
+                {
+                    // Lấy tất cả con của parent này trong hệ thống và kiểm tra xem có con nào trong số đó được chọn không
+                    var selectedChildren = allFunctions
+                        //kiểm tra con có functionId có trong hệ thống không VÀ kiểm tra con đó có được chọn không (con có tồn tại trong functionIds không)
+                        .Where(f => f.Parent_id == functionId && functionIds.Contains(f.Id))  
+                        .ToList();
+
+                    if (selectedChildren.Count == 0)
+                    {
+                        // Parent không có con nào được chọn
+                        parentsWithoutChildren.Add(functionId);
+                    }
+                }
+            }
+
+            //nếu tồn tại parent không có con được chọn thì return false với message chi tiết
+            if (parentsWithoutChildren.Count > 0)
+            {
+                message = $"Các chức năng cha sau phải có ít nhất 1 con: {string.Join(", ", parentsWithoutChildren)}. " +
+                         "Không thể chọn chỉ cha mà không có con.";
                 return false;
             }
 

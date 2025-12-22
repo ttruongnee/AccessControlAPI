@@ -49,7 +49,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize ("UPDATE_USER")]
         public IActionResult Create([FromBody] UserDTO user)
         {
             if (user == null)
