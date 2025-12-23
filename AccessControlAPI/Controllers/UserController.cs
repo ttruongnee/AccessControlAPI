@@ -16,6 +16,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize("GET_USER")]
         public IActionResult GetAll()
         {
             var users = _userService.GetAll();
@@ -27,6 +28,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize("GET_USER")]
         public IActionResult GetById(int id) 
         {
             var user = _userService.GetById(id);
@@ -38,6 +40,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpGet("by-username/{username}")]
+        [Authorize("GET_USER")]
         public IActionResult GetByUsername(string username)
         {
             var user = _userService.GetByUsername(username);
@@ -49,7 +52,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize ("UPDATE_USER")]
+        [Authorize ("CREATE_USER")]
         public IActionResult Create([FromBody] UserDTO user)
         {
             if (user == null)
@@ -68,7 +71,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize("UPDATE_USER")]
         public IActionResult Update(int id, [FromBody] UserDTO user)
         {
             if (user == null)
@@ -86,7 +89,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize("DELETE_USER")]
         public IActionResult Delete(int id)
         {
             if (_userService.Delete(id, out string message))

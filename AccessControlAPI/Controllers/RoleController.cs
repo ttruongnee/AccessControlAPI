@@ -16,6 +16,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize("GET_ROLE")]
         public IActionResult GetAll()
         {
             var roles = _roleService.GetAll();
@@ -27,6 +28,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize("GET_ROLE")]
         public IActionResult GetById(int id)
         {
             var role = _roleService.GetById(id);
@@ -38,7 +40,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize("CREATE_ROLE")]
         public IActionResult Create([FromBody] CreateUpdateRoleDTO role)
         {
             if (role == null)
@@ -57,7 +59,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize("UPDATE_ROLE")]
         public IActionResult Update(int id, [FromBody] CreateUpdateRoleDTO role)
         {
             if (role == null)
@@ -75,7 +77,7 @@ namespace AccessControlAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize("DELETE_ROLE")]
         public IActionResult Delete(int id)
         {
             if (_roleService.Delete(id, out string message))

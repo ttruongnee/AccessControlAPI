@@ -26,7 +26,7 @@ namespace AccessControlAPI.Controllers
 
             if (functions.Count == 0)
             {
-                return NotFound(new { message = $"Người dùng {userId} không có chức năng nào!" });
+                return NotFound(new { message = $"Người dùng {userId} không có chức năng riêng nào!" });
             }
             return Ok(functions);
         }
@@ -42,7 +42,7 @@ namespace AccessControlAPI.Controllers
 
             if (functions.Count == 0)
             {
-                return NotFound(new { message = $"Người dùng {userId} không có chức năng nào!" });    
+                return NotFound(new { message = $"Người dùng {userId} không có chức năng riêng nào!" });    
             }
             return Ok(functions);
         }

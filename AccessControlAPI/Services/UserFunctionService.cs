@@ -241,7 +241,7 @@ namespace AccessControlAPI.Services
             var existing = _userFunctionRepository.GetFunctionsByUserId(userId);
             if (existing.Count == 0)
             {
-                message = $"Người dùng {userId} hiện tại không có chức năng nào";
+                message = $"Người dùng {userId} hiện tại không có chức năng riêng nào";
                 return false;
             }
 

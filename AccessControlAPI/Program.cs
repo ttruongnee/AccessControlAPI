@@ -1,10 +1,13 @@
-﻿using AccessControlAPI.Database;
+﻿using AccessControlAPI.Authorization;
+using AccessControlAPI.Database;
+using AccessControlAPI.Middlewares;
 using AccessControlAPI.Repositories;
 using AccessControlAPI.Repositories.Interface;
 using AccessControlAPI.Services;
 using AccessControlAPI.Services.Interface;
 using AccessControlAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -68,17 +71,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // s�
 
 //đăng ký Authorization (phân quyền)
 builder.Services.AddAuthorization();
+//Custom Policy Provider 
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, CustomPolicyProvider>();
+
 
 //đăng ký CORS 
 builder.Services.AddCors(options =>
 {
-    //options.AddPolicy("AllowAll", policy =>
-    //{
-    //    policy.AllowAnyOrigin()    //cho phép mọi domain gọi api
-    //          .AllowAnyMethod()    //Cho phép mọi HTTP method (GET, POST, PUT, DELETE, ...)
-    //          .AllowAnyHeader();   //cho phép mọi header 
-    //});
-
     options.AddPolicy("Development", policy =>
     {
         policy.WithOrigins("http://localhost:5173")  // ← Chỉ định cụ thể domain được phép gọi API
@@ -99,12 +98,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//app.UseCors("AllowAll");
-app.UseCors("Development");  
+app.UseCors("Development");
 
-app.UseAuthentication();  //Phải có và phải TRƯỚC UseAuthorization
-app.UseAuthorization(); 
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UsePermissionMiddleware(); 
+
 
 app.MapControllers();
-
 app.Run();
