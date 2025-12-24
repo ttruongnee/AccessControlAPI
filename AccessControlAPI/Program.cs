@@ -1,6 +1,5 @@
 ﻿using AccessControlAPI.Authorization;
 using AccessControlAPI.Database;
-using AccessControlAPI.Middlewares;
 using AccessControlAPI.Repositories;
 using AccessControlAPI.Repositories.Interface;
 using AccessControlAPI.Services;
@@ -71,9 +70,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // s�
 
 //đăng ký Authorization (phân quyền)
 builder.Services.AddAuthorization();
-//Custom Policy Provider 
+
+// Custom Policy Provider (tạo policy động theo permission)
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, CustomPolicyProvider>();
 
+// Permission Handler (check quyền từ DB)
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
 //đăng ký CORS 
 builder.Services.AddCors(options =>
@@ -101,10 +103,9 @@ app.UseHttpsRedirection();
 app.UseCors("Development");
 
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UsePermissionMiddleware(); 
-
 
 app.MapControllers();
 app.Run();
